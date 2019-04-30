@@ -34,7 +34,7 @@ install: $(SOURCES)
 build: dep bin/$(EXECUTABLE)
 
 bin/$(EXECUTABLE): $(SOURCES)
-	go build -i -v  -o $@ ./cmd/$(NAME)
+	env GOOS=linux GOARCH=amd64 go build -i -v  -o $@ ./cmd/$(NAME)
 
 .PHONY: docs
 docs:
