@@ -60,6 +60,11 @@ func main() {
 				Usage:  "Show DPDK stats per port",
 				Action: handlers.NatashaDPDKStats,
 			},
+			{
+				Name:   "app-stats",
+				Usage:  "Display the application per core statistics",
+				Action: handlers.NatashaAppStats,
+			},
 		},
 	}
 

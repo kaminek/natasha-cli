@@ -223,3 +223,38 @@ func NatashaDPDKStats(c *cli.Context) error {
 
 	return nil
 }
+
+// NatashaAppStats handle app-stats command
+func NatashaAppStats(c *cli.Context) error {
+
+	reply := headers.NatashaCmdReply{}
+	AppCoreStats := headers.NatashaAppStats{}
+
+	conn, err := client.Connect(c)
+	if err != nil {
+		log.Fatal("Socket connection error: ", err)
+		return err
+	}
+	defer conn.Close()
+
+	err = SendCmd(conn, headers.NatashaCmdAppStats, &reply)
+	if err != nil {
+		log.Fatal("version: ", err)
+		return err
+	}
+
+	cores := int(reply.DataSize) / int(unsafe.Sizeof(AppCoreStats))
+	recvBuf := make([]byte, unsafe.Sizeof(AppCoreStats))
+
+	for c := 0; c < cores; c++ {
+		_, err = conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+		fmt.Println("Core ", c)
+		fmt.Printf("%+v\n", AppCoreStats)
+	}
+
+	return nil
+}
