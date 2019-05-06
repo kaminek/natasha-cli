@@ -2,6 +2,7 @@ NAME := natasha-cli
 EXECUTABLE := $(NAME)
 PACKAGES ?= $(shell go list ./... | grep -v /vendor/ | grep -v /_tools/)
 SOURCES ?= $(shell find . -name "*.go" -type f -not -path "./vendor/*" -not -path "./_tools/*")
+HEADERS_CONFIG ?= natasha_headers.yml
 
 .PHONY: all
 all: build
@@ -10,6 +11,9 @@ all: build
 clean:
 	go clean -i ./...
 	rm -rf bin/ $(DIST)/
+	rm -f pkg/headers/cgo_helpers.go pkg/headers/cgo_helpers.h pkg/headers/cgo_helpers.c
+	rm -f pkg/headers/const.go pkg/headers/doc.go pkg/headers/types.go
+	rm -f pkg/headers/headers.go
 
 .PHONY: fmt
 fmt:
@@ -30,8 +34,16 @@ dep:
 install: $(SOURCES)
 	go install -v  ./cmd/$(NAME)
 
+.PHONY: headers
+headers:
+	c-for-go -out pkg/ $(HEADERS_CONFIG)
+	# Let's remove bad extra fields that c-for-go adds
+	sed -i '/ref[0-9].*\|allocs[0-9].*/d' pkg/headers/types.go
+	# this file adds extra methods for our types let's remove them
+	rm pkg/headers/cgo_helpers.go
+
 .PHONY: build
-build: dep bin/$(EXECUTABLE)
+build: headers bin/$(EXECUTABLE)
 
 bin/$(EXECUTABLE): $(SOURCES)
 	env GOOS=linux GOARCH=amd64 go build -i -v  -o $@ ./cmd/$(NAME)

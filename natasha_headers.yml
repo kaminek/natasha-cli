@@ -1,0 +1,38 @@
+---
+GENERATOR:
+  PackageName: headers
+  PackageDescription: "Package Natasha data structures used for CLI"
+  PackageLicense: "MIT license"
+  Includes:
+    - "/root/natv2/src/cli.h"
+  Options:
+    SafeStrings: true
+PARSER:
+  IncludePaths:
+    - "/usr/include"
+    - "/usr/src/linux-headers-4.4.0-116-generic/include/linux/"
+    - "/root/dpdk-stable/install/include/dpdk"
+  SourcesPaths: ["/root/natv2/src/cli.h"]
+
+TRANSLATOR:
+  ConstRules:
+    defines: expand
+    enum: expand
+  Rules:
+    global:
+      - {transform: lower}
+      - {action: accept, from: "(?i)^natasha"}
+      - {action: accept, from: "(?i)^dpdk"}
+      - {action: accept, from: "(?i)^rte"}
+      - {transform: export}
+    type:
+      - {transform: lower}
+      - {action: replace, from: "_t$"}
+      - {transform: export}
+    const:
+      - {action: ignore, from: "NATASHA_REPLY_OK"}
+    private:
+      - {transform: unexport}
+    post-global:
+      - {action: replace, from: _$}
+      - {load: snakecase}
