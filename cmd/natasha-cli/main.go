@@ -55,6 +55,11 @@ func main() {
 				Usage:  "Show Natasha server version",
 				Action: handlers.NatashaVersion,
 			},
+			{
+				Name:   "dpdk-stats",
+				Usage:  "Show DPDK stats per port",
+				Action: handlers.NatashaDPDKStats,
+			},
 		},
 	}
 

@@ -188,3 +188,38 @@ func NatashaVersion(c *cli.Context) error {
 
 	return nil
 }
+
+// NatashaDPDKStats Show DPDK stats
+func NatashaDPDKStats(c *cli.Context) error {
+
+	reply := headers.NatashaCmdReply{}
+	DpdkPortStats := headers.NatashaEthStats{}
+
+	conn, err := client.Connect(c)
+	if err != nil {
+		log.Fatal("Socket connection error: ", err)
+		return err
+	}
+	defer conn.Close()
+
+	err = SendCmd(conn, headers.NatashaCmdDpdkStats, &reply)
+	if err != nil {
+		log.Fatal("version: ", err)
+		return err
+	}
+
+	ports := int(reply.DataSize) / int(unsafe.Sizeof(DpdkPortStats))
+	recvBuf := make([]byte, unsafe.Sizeof(DpdkPortStats))
+
+	for p := 0; p < ports; p++ {
+		_, err = conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+		fmt.Println("Port ", p)
+		fmt.Printf("%+v\n", DpdkPortStats)
+	}
+
+	return nil
+}
