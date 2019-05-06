@@ -3,8 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/kaminek/natasha-cli/pkg/client"
-	// "github.com/kaminek/natasha-cli/pkg/handlers"
+	"github.com/kaminek/natasha-cli/pkg/handlers"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -32,11 +31,34 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name:        "cli",
+				Name:        "status",
 				Usage:       "use it to see natasha server status",
 				Description: "Checks natasha server status",
-				// Action:      handlers.NatashaStatusHandler,
-				Action: client.Connect,
+				Action:      handlers.NatashaStatus,
+			},
+			{
+				Name:        "reload",
+				Usage:       "use it to see natasha server status",
+				Description: "Checks natasha server status",
+				Action:      handlers.NatashaReload,
+			},
+			{
+				Name:        "exit",
+				Usage:       "use it to see natasha server status",
+				Description: "Checks natasha server status",
+				Action:      handlers.NatashaExit,
+			},
+			{
+				Name:        "reset-stats",
+				Usage:       "use it to see natasha server status",
+				Description: "Checks natasha server status",
+				Action:      handlers.NatashaResetStats,
+			},
+			{
+				Name:        "version",
+				Usage:       "use it to see natasha server status",
+				Description: "Checks natasha server status",
+				Action:      handlers.NatashaVersion,
 			},
 		},
 	}
