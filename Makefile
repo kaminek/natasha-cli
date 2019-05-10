@@ -39,6 +39,8 @@ headers:
 	c-for-go -out pkg/ $(HEADERS_CONFIG)
 	# Let's remove bad extra fields that c-for-go adds
 	sed -i '/ref[a-f0-9].*\|allocs[a-f0-9].*/d' pkg/headers/types.go
+	# replace uint by uint64
+	sed -i -e "s/uint$$/uint64/g" pkg/headers/types.go
 	# this file adds extra methods for our types let's remove them
 	rm pkg/headers/cgo_helpers.go
 
