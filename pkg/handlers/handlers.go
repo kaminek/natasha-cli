@@ -217,6 +217,14 @@ func NatashaDPDKStats(c *cli.Context) error {
 			log.Fatal("Failed to read data", err)
 			return err
 		}
+
+		r := bytes.NewReader(recvBuf)
+		err = binary.Read(r, binary.BigEndian, &DpdkPortStats)
+		if err != nil {
+			log.Fatal("Write to data structure error: ", err)
+			return err
+		}
+
 		fmt.Println("Port ", p)
 		fmt.Printf("%+v\n", DpdkPortStats)
 	}
@@ -247,11 +255,19 @@ func NatashaAppStats(c *cli.Context) error {
 	recvBuf := make([]byte, unsafe.Sizeof(AppCoreStats))
 
 	for c := 0; c < cores; c++ {
-		_, err = conn.Read(recvBuf)
+		_, err := conn.Read(recvBuf)
 		if err != nil {
 			log.Fatal("Failed to read data", err)
 			return err
 		}
+
+		r := bytes.NewReader(recvBuf)
+		err = binary.Read(r, binary.BigEndian, &AppCoreStats)
+		if err != nil {
+			log.Fatal("Write to data structure error: ", err)
+			return err
+		}
+
 		fmt.Println("Core ", c)
 		fmt.Printf("%+v\n", AppCoreStats)
 	}
