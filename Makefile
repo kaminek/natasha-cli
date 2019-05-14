@@ -10,7 +10,6 @@ all: build
 .PHONY: clean
 clean:
 	go clean -i ./...
-	rm -rf bin/ $(DIST)/
 	rm -f pkg/headers/cgo_helpers.go pkg/headers/cgo_helpers.h pkg/headers/cgo_helpers.c
 	rm -f pkg/headers/const.go pkg/headers/doc.go pkg/headers/types.go
 	rm -f pkg/headers/headers.go
