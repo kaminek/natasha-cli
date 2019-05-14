@@ -233,6 +233,7 @@ func NatashaAppStats(c *cli.Context) error {
 
 	reply := headers.NatashaCmdReply{}
 	AppCoreStats := headers.NatashaAppStats{}
+	var coreID uint8
 
 	conn, err := client.Connect(c)
 	if err != nil {
@@ -247,11 +248,21 @@ func NatashaAppStats(c *cli.Context) error {
 		return err
 	}
 
-	cores := int(reply.DataSize) / int(unsafe.Sizeof(AppCoreStats))
-	recvBuf := make([]byte, unsafe.Sizeof(AppCoreStats))
+	cores := int(reply.DataSize) /
+		int(unsafe.Sizeof(AppCoreStats)+unsafe.Sizeof(coreID))
 
 	for c := 0; c < cores; c++ {
+		recvBuf := make([]byte, unsafe.Sizeof(coreID))
 		_, err := conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+		// it's a uint8 same as one byte
+		coreID = recvBuf[0]
+
+		recvBuf = make([]byte, unsafe.Sizeof(AppCoreStats))
+		_, err = conn.Read(recvBuf)
 		if err != nil {
 			log.Fatal("Failed to read data", err)
 			return err
@@ -264,7 +275,7 @@ func NatashaAppStats(c *cli.Context) error {
 			return err
 		}
 
-		fmt.Println("Core ", c)
+		fmt.Println("Core ", coreID)
 		fmt.Printf("%+v\n", AppCoreStats)
 	}
 
