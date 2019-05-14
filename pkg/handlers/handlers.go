@@ -34,26 +34,22 @@ func SendCmd(conn net.Conn, queryType uint8, reply *headers.NatashaCmdReply) err
 	}
 
 	// Write to socket
-	nb, err := conn.Write(sendBuf.Bytes())
+	_, err = conn.Write(sendBuf.Bytes())
 	if err != nil {
 		log.Fatal("Connection write error: ", err)
 		return err
 	}
 
-	fmt.Printf("%d bytes sent\n", nb)
-
 	recvBuf := make([]byte, unsafe.Sizeof(*reply))
-	nb, err = conn.Read(recvBuf)
+	_, err = conn.Read(recvBuf)
 	if err != nil {
 		log.Fatal("Connection read error: ", err)
 		return err
 	}
 
-	fmt.Printf("%d bytes received\n", nb)
-
 	// Write byte stream to struct
-	buf := bytes.NewReader(recvBuf)
-	err = binary.Read(buf, binary.BigEndian, reply)
+	r := bytes.NewReader(recvBuf)
+	err = binary.Read(r, binary.BigEndian, reply)
 	if err != nil {
 		log.Fatal("Write to data structure error: ", err)
 		return err
