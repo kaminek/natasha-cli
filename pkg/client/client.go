@@ -11,7 +11,6 @@ import (
 func Connect(c *cli.Context) (net.Conn, error) {
 
 	server := c.String("address") + ":" + c.String("port")
-	fmt.Printf("Connecting to %s...\n", server)
 	conn, err := net.Dial("tcp4", server)
 	if err != nil {
 		if _, t := err.(*net.OpError); t {
