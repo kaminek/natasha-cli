@@ -65,6 +65,11 @@ func main() {
 				Usage:  "Display the application per core statistics",
 				Action: handlers.NatashaAppStats,
 			},
+			{
+				Name:   "cpu-usage",
+				Usage:  "Display the real CPU workers usage",
+				Action: handlers.NatashaCPUUsage,
+			},
 		},
 	}
 

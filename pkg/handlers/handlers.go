@@ -281,3 +281,77 @@ func NatashaAppStats(c *cli.Context) error {
 
 	return nil
 }
+
+// NatashaCPUUsage handle cpu-usage command
+func NatashaCPUUsage(c *cli.Context) error {
+
+	reply := headers.NatashaCmdReply{}
+	var (
+		coreID uint8
+		cycles uint64
+		freq   uint64
+		usage  float64
+	)
+
+	conn, err := client.Connect(c)
+	if err != nil {
+		log.Fatal("Socket connection error: ", err)
+		return err
+	}
+	defer conn.Close()
+
+	err = SendCmd(conn, headers.NatashaCmdCpuUsage, &reply)
+	if err != nil {
+		log.Fatal("cpu-usage: ", err)
+		return err
+	}
+
+	cores := int(reply.DataSize) /
+		int(unsafe.Sizeof(cycles)+unsafe.Sizeof(freq)+unsafe.Sizeof(coreID))
+
+	for c := 0; c < cores; c++ {
+		// Get CPU id
+		recvBuf := make([]byte, unsafe.Sizeof(coreID))
+		_, err := conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+		// it's a uint8 same as one byte
+		coreID = recvBuf[0]
+
+		// Get cpu busy cycles
+		recvBuf = make([]byte, unsafe.Sizeof(cycles))
+		_, err = conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+
+		r := bytes.NewReader(recvBuf)
+		err = binary.Read(r, binary.BigEndian, &cycles)
+		if err != nil {
+			log.Fatal("Write to data structure error: ", err)
+			return err
+		}
+
+		// Get cpu frequency
+		_, err = conn.Read(recvBuf)
+		if err != nil {
+			log.Fatal("Failed to read data", err)
+			return err
+		}
+
+		r = bytes.NewReader(recvBuf)
+		err = binary.Read(r, binary.BigEndian, &freq)
+		if err != nil {
+			log.Fatal("Write to data structure error: ", err)
+			return err
+		}
+
+		usage = 100 * float64(cycles) / float64(freq)
+		fmt.Printf("Core %v: %3.2f%%\n", coreID, usage)
+	}
+
+	return nil
+}
