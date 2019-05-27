@@ -1,0 +1,23 @@
+variables:
+  # add if any
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  tags:
+    - docker
+    - network
+  image: golang:1.12-stretch
+  before_script:
+    - export GO111MODULE=on
+    - go version
+    - cd $GOPATH/src
+    - mkdir -p gitlab/$CI_PROJECT_NAMESPACE
+    - cd gitlab/$CI_PROJECT_NAMESPACE
+    - ln -s $CI_PROJECT_DIR
+    - cd $CI_PROJECT_NAME
+  script:
+    - make
