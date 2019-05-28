@@ -10,9 +10,11 @@ all: build
 .PHONY: clean
 clean:
 	go clean -i ./...
-	rm -f pkg/headers/cgo_helpers.go pkg/headers/cgo_helpers.h pkg/headers/cgo_helpers.c
-	rm -f pkg/headers/const.go pkg/headers/doc.go pkg/headers/types.go
-	rm -f pkg/headers/headers.go
+
+# Clean binary and dynamically generated strucutres.
+.PHONY: clean-all
+clean-all:
+	rm -f pkg/headers/*
 
 .PHONY: fmt
 fmt:
@@ -33,6 +35,9 @@ dep:
 install: $(SOURCES)
 	go install -v  ./cmd/$(NAME)
 
+# Generate go data structures from C headers no need to do it for every compil
+# just if there are changes on the Natasha headers
+# For more informations see natasha_headers.yml
 .PHONY: headers
 headers:
 	c-for-go -out pkg/ $(HEADERS_CONFIG)
@@ -44,10 +49,10 @@ headers:
 	rm pkg/headers/cgo_helpers.go
 
 .PHONY: build
-build: headers bin/$(EXECUTABLE)
+build: bin/$(EXECUTABLE)
 
 bin/$(EXECUTABLE): $(SOURCES)
-	env GOOS=linux GOARCH=amd64 go build -i -v  -o $@ ./cmd/$(NAME)
+	go build -i -v  -o $@ ./cmd/$(NAME)
 
 .PHONY: docs
 docs:
