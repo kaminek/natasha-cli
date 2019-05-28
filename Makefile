@@ -45,8 +45,11 @@ headers:
 	sed -i '/ref[a-f0-9].*\|allocs[a-f0-9].*/d' pkg/headers/types.go
 	# replace uint by uint64
 	sed -i -e "s/uint$$/uint64/g" pkg/headers/types.go
-	# this file adds extra methods for our types let's remove them
+	# Remove unused headers
 	rm pkg/headers/cgo_helpers.go
+	rm pkg/headers/cgo_helpers.h
+	# Remove C includes
+	sed -i '/^#include.*/d' pkg/headers/*
 
 .PHONY: build
 build: bin/$(EXECUTABLE)
